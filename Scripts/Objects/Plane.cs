@@ -2,12 +2,7 @@ using System.Text;
 using System.Reflection;
 using UnityEngine;
 public class Plane : ArObject {
-    // var Plane = (width: childToAdd.transform.localScale.x, height: childToAdd.transform.localScale.y,
-    //                             position: -childToAdd.transform.localPosition.x / 10 + " " + childToAdd.transform.localPosition.y / 10 + " " + childToAdd.transform.localPosition.z / 10,
-    //                             rotation: childToAdd.transform.localEulerAngles.x + " " + -childToAdd.transform.localEulerAngles.y + " " + -childToAdd.transform.localEulerAngles.z,
-    //                             color: "#" + ColorUtility.ToHtmlStringRGB(childToAdd.GetComponentInChildren<MeshRenderer>().sharedMaterial.color),
-    //                             src: textureName != null ? "textures/" + textureName + ".png" : "");
-    // sb.AppendLine($"<a-plane src=\"{Plane.src}\" id=\"{childToAdd.name + "_" + i}\" class=\"intersectable\" width=\"{Plane.width}\" height=\"{Plane.height}\" position=\"{Plane.position}\" rotation=\"{Plane.rotation}\" color=\"{Plane.color}\" transparent={transparency}");
+    // HTML properties
     public string scaleX_width { get; set; }
     public string scaleY_height { get; set; }
 
