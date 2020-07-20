@@ -24,9 +24,4 @@ public class Plane : ArObject {
         y_scale_offset = 1f;
         z_scale_offset = 1f;
     }
-
-    public override string getHtmlString(KeyFrameList keyList) {
-        StringBuilder sb = new StringBuilder();
-        return "";
-    }
 }
