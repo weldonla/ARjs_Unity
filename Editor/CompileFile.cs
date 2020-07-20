@@ -353,61 +353,16 @@ public class CompileFile : MonoBehaviour
             switch (childToAdd.tag)
             {
                 case "Plane":
-                    var Plane = (width: childToAdd.transform.localScale.x, height: childToAdd.transform.localScale.y,
-                                position: -childToAdd.transform.localPosition.x / 10 + " " + childToAdd.transform.localPosition.y / 10 + " " + childToAdd.transform.localPosition.z / 10,
-                                rotation: childToAdd.transform.localEulerAngles.x + " " + -childToAdd.transform.localEulerAngles.y + " " + -childToAdd.transform.localEulerAngles.z,
-                                color: "#" + ColorUtility.ToHtmlStringRGB(childToAdd.GetComponentInChildren<MeshRenderer>().sharedMaterial.color),
-                                src: textureName != null ? "textures/" + textureName + ".png" : "");
-                    sb.AppendLine($"<a-plane src=\"{Plane.src}\" id=\"{childToAdd.name + "_" + i}\" class=\"intersectable\" width=\"{Plane.width}\" height=\"{Plane.height}\" position=\"{Plane.position}\" rotation=\"{Plane.rotation}\" color=\"{Plane.color}\" transparent={transparency}");
-
                     string planeID = childToAdd.name.ToLower() + "_" + i;
-                    if (childToAdd.GetComponent<AnimationHelper>() != null)
-                    {
-                        string animationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + planeID + ".txt");
-                        KeyFrameList keyList = JsonUtility.FromJson<KeyFrameList>(animationFile);
+                    string planeAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + planeID + ".txt");
+                    KeyFrameList planeKeyList = JsonUtility.FromJson<KeyFrameList>(planeAnimationFile);
 
-                        Plane newPlane = new Plane();
-                        newPlane.initialize();
-                        newPlane.setPropertyValues(childToAdd, textureName, i);
-                        Debug.Log(newPlane.getHtmlString(keyList));
-
-                        foreach (WeldonKeyFrame frame in keyList.frameList)
-                        {
-                            int index = keyList.frameList.FindIndex(obj => obj == frame);
-                            string loopTrueString = "";
-                            string animTrigger = "";
-                            string posFrom = "", rotFrom = "", widthFrom = "", heightFrom = "";
-                            WeldonKeyFrame prevFrame = new WeldonKeyFrame();
-                            if (index > 0)
-                            {
-                                prevFrame = keyList.frameList[index - 1];
-                                posFrom = $"from: {-prevFrame.posX / 10} {prevFrame.posY / 10} {prevFrame.posZ / 10};";
-                                rotFrom = $"from: {prevFrame.rotX} {-prevFrame.rotY} {-prevFrame.rotZ};";
-                                widthFrom = $"from: {prevFrame.scalX};";
-                                heightFrom = $"from: {prevFrame.scalY};";
-
-                                animTrigger = $"startEvents: animationcomplete__{planeID}_f{index-1}" + ((index==1 && childToAdd.GetComponent<AnimationHelper>().loop)? $", animationcomplete__{planeID}_f{keyList.frameList.Count-1};" : ";");
-                            }
-                            else
-                            {
-                                if (childToAdd.GetComponent<AnimationHelper>().onClick) animTrigger = $"startEvents: mousedown;";
-                            }
-
-                            string posTo = $"to: {-frame.posX / 10} {frame.posY / 10} {frame.posZ / 10};",
-                                rotTo = $"to: {frame.rotX} {-frame.rotY} {-frame.rotZ};",
-                                widthTo = $"to: {frame.scalX};",
-                                heightTo = $"to: {frame.scalY};";
-
-                            //if (childToAdd.GetComponent<AnimationHelper>().loop) loopTrueString = $"repeat = \"indefinite\"";
-                            bool isFirstFrame = prevFrame.time.Equals(-1) ? true : false;
-                            if (isFirstFrame) prevFrame.time = 0;
-                            if (frame.IsDifferentPosition(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{planeID}_f{index}=\" property: position; {posFrom} {posTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentRotation(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{planeID}_f{index}=\" property: rotation; {rotFrom} {rotTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentWidth(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{planeID}_f{index}=\" property: width; {widthFrom} {widthTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentHeight(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{planeID}_f{index}=\" property: height; {heightFrom} {heightTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                        }
-                    }
-                    sb.AppendLine("></a-plane>");
+                    Plane newPlane = new Plane();
+                    newPlane.initialize();
+                    newPlane.setPropertyValues(childToAdd, textureName, i);
+                    string lineToAppend = newPlane.getHtmlString(planeKeyList);
+                    Debug.Log(lineToAppend);
+                    sb.AppendLine(lineToAppend);
                     break;
 
                 case "Video":
