@@ -348,10 +348,7 @@ public class CompileFile : MonoBehaviour
                 transparency = "true";
 
             }
-            Plane newPlane = new Plane();
-            newPlane.initialize();
-            newPlane.setPropertyValues(childToAdd, textureName, i);
-            Debug.Log(newPlane.getObjectPropertiesString());
+            
 
             switch (childToAdd.tag)
             {
@@ -368,6 +365,11 @@ public class CompileFile : MonoBehaviour
                     {
                         string animationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + planeID + ".txt");
                         KeyFrameList keyList = JsonUtility.FromJson<KeyFrameList>(animationFile);
+
+                        Plane newPlane = new Plane();
+                        newPlane.initialize();
+                        newPlane.setPropertyValues(childToAdd, textureName, i);
+                        Debug.Log(newPlane.getHtmlString(keyList));
 
                         foreach (WeldonKeyFrame frame in keyList.frameList)
                         {

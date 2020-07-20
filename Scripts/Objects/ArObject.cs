@@ -2,9 +2,14 @@ using System.Text;
 using System.Reflection;
 using UnityEngine;
 public abstract class ArObject {
+    // General Purpose
     public string HtmlTag;
     public GameObject childToAdd;
     public int i;
+    public string scaleX_name;
+    public string scaleY_name;
+    public string scaleZ_name;
+
     // HTML Properties
     public string _src { get; set; }
     public string _id { get; set; }
@@ -43,16 +48,20 @@ public abstract class ArObject {
         foreach (PropertyInfo property in properties)
         {
             string propertyPrefix = property.Name.Split('_')[0];
+            string propertyName = property.Name.Split('_')[1];
 
             switch(propertyPrefix) {
                 case "scaleX" :
                     property.SetValue(this, $"{transform.localScale.x*x_scale_offset}");
+                    scaleX_name = propertyName;
                     break;
                 case "scaleY" :
                     property.SetValue(this, $"{transform.localScale.y*y_scale_offset}");
+                    scaleY_name = propertyName;
                     break;
                 case "scaleZ" :
                     property.SetValue(this, $"{transform.localScale.z*z_scale_offset}");
+                    scaleZ_name = propertyName;
                     break;
             }
         }
@@ -60,10 +69,10 @@ public abstract class ArObject {
 
     public string getHtmlString(KeyFrameList keyList) {
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine($"{HtmlTag} {getObjectPropertiesString()}");
+        sb.AppendLine($"<{HtmlTag} {getObjectPropertiesString()}");
         sb.AppendLine($"{getKeyFramesString(keyList)}");
-
-        return "";
+        sb.Append($"></{HtmlTag}>");
+        return sb.ToString();
     }
 
     public string getKeyFramesString(KeyFrameList keyList) {
@@ -74,7 +83,7 @@ public abstract class ArObject {
             int index = keyList.frameList.FindIndex(obj => obj == frame);
             string loopTrueString = "";
             string animTrigger = "";
-            string posFrom = "", rotFrom = "", scaleXFrom = "", scaleYFrom = "", scaleZFrom;
+            string posFrom = "", rotFrom = "", scaleXFrom = "", scaleYFrom = "", scaleZFrom = "";
             WeldonKeyFrame prevFrame = new WeldonKeyFrame();
             if (index > 0)
             {
@@ -95,18 +104,19 @@ public abstract class ArObject {
             string posTo = $"to: {frame.posX*x_pos_offset} {frame.posY*y_pos_offset} {frame.posZ*z_pos_offset};",
                 rotTo = $"to: {frame.rotX*x_rot_offset} {frame.rotY*y_rot_offset} {frame.rotZ*z_rot_offset};",
                 scaleXTo = $"to: {frame.scalX};",
-                scaleYTo = $"to: {frame.scalY};";
-                scaleYTo = $"to: {frame.scalZ};";
+                scaleYTo = $"to: {frame.scalY};",
+                scaleZTo = $"to: {frame.scalZ};";
 
             //if (childToAdd.GetComponent<AnimationHelper>().loop) loopTrueString = $"repeat = \"indefinite\"";
             bool isFirstFrame = prevFrame.time.Equals(-1) ? true : false;
             if (isFirstFrame) prevFrame.time = 0;
             if (frame.IsDifferentPosition(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{animationId}_f{index}=\" property: position; {posFrom} {posTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
             if (frame.IsDifferentRotation(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{animationId}_f{index}=\" property: rotation; {rotFrom} {rotTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-            // if (frame.IsDifferentWidth(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{animationId}_f{index}=\" property: width; {widthFrom} {widthTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-            // if (frame.IsDifferentHeight(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{animationId}_f{index}=\" property: height; {heightFrom} {heightTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if ((frame.IsDifferentWidth(prevFrame) || isFirstFrame) && scaleX_name != null) sb.AppendLine($"animation__{animationId}_f{index}=\" property: {scaleX_name}; {scaleXFrom} {scaleXTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if ((frame.IsDifferentHeight(prevFrame) || isFirstFrame) && scaleY_name != null) sb.AppendLine($"animation__{animationId}_f{index}=\" property: {scaleY_name}; {scaleYFrom} {scaleYTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if ((frame.IsDifferentHeight(prevFrame) || isFirstFrame) && scaleZ_name != null) sb.AppendLine($"animation__{animationId}_f{index}=\" property: {scaleZ_name}; {scaleZFrom} {scaleZTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
         }
-        return "";
+        return sb.ToString();
     }
 
     public string getObjectPropertiesString() {
