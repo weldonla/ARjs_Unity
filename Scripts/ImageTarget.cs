@@ -11,6 +11,11 @@ public class ImageTarget : MonoBehaviour
     public string patternName = "default";
     [HideInInspector]
     public string destination = "Assets/AR.js-master/aframe/";
+    public bool isNftImage;
+    public bool smooth = true;
+    public int smoothCount = 10;
+    public float smoothTolerance = 0.01f;
+    public int smoothThreshold = 5;
 
     private void OnValidate()
     {
@@ -22,4 +27,29 @@ public class ImageTarget : MonoBehaviour
         }
     }
 
+}
+
+[CustomEditor(typeof(ImageTarget))]
+public class ImageTargetEditor: Editor 
+{
+    ImageTarget t;
+    SerializedObject GetTarget;
+    void OnEnable()
+    {
+        t = (ImageTarget)target;
+        GetTarget = new SerializedObject(t);
+    }
+    public override void OnInspectorGUI()
+    {
+        t.isNftImage = GUILayout.Toggle(t.isNftImage, "isNftImage");
+        GetTarget.ApplyModifiedProperties();
+        if(t.isNftImage) {
+            t.smooth = GUILayout.Toggle(t.smooth, "Smooth");
+            if(t.smooth) {
+                t.smoothCount = EditorGUILayout.IntField("Smooth Count", t.smoothCount);
+                t.smoothTolerance = EditorGUILayout.FloatField("Smooth Tolerance", t.smoothTolerance);
+                t.smoothThreshold = EditorGUILayout.IntField("Smooth Threshold", t.smoothThreshold);
+            }
+        }
+    }
 }

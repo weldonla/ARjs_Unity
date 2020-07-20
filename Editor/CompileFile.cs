@@ -35,31 +35,12 @@ public class CompileFile : MonoBehaviour
         string fileName = "index.html";
         bool hasVideo = false;
 
-        #region HTML Strings
-        string aframeString = "<script src=\"https://aframe.io/releases/0.9.2/aframe.min.js\"></script>";
-        string topHTML = $"<!DOCTYPE html>\n<!-- include aframe -->\n{aframeString}\n<!-- include ar.js -->\n<script src=\"https://cdn.rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.js\"></script>\n\n<!-- to load .ply model -->\n<script src=\"https://rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.loaders.min.js\"></script>\n\n";
-        string bodyHtml = @"<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>";
-        string middleHTML = @"<!-- <a-scene embedded arjs='debugUIEnabled: false; sourceType: video; sourceUrl:../../data/videos/headtracking.mp4;'> -->
-    <a-scene embedded arjs='debugUIEnabled: false; sourceType: webcam' vr-mode-ui='enabled: false'>
-    <a-entity id=""mouseCursor"" cursor=""rayOrigin: mouse"" raycaster=""objects: .intersectable; useWorldCoordinates: true;""></a-entity>";
-        string buttonHTML = "<div style='position: absolute; bottom: 10px; right: 30px; width:100%; text-align: center; z-index: 1;'>\n      <button id=\"mutebutton\" style='position: absolute; bottom: 10px'>\n          Unmute\n      </button>\n  </div>";
-        string fullscreenButtonHTML = "<div style='position: absolute; bottom: 5px; left: 30px; width:100%; text-align: right; z-index: 1;'>\n        <input type=\"image\" id=\"fullscreen\" src=\"../fullscreen.png\" style='position: absolute; bottom: 0px; right: 35px;'>\n        </input>\n    </div>";
-        string fullscreenButtonActionHTML = "fullbutton.addEventListener(\"click\", function (evt) {\n                if (fullscreen == 0) {\n                    if (elem.requestFullscreen) {\n                        elem.requestFullscreen();\n                    } else if (elem.mozRequestFullScreen) {\n                        /* Firefox */\n                        elem.mozRequestFullScreen();\n                    } else if (elem.webkitRequestFullscreen) {\n                        /* Chrome, Safari and Opera */\n                        elem.webkitRequestFullscreen();\n                    } else if (elem.msRequestFullscreen) {\n                        /* IE/Edge */\n                        elem.msRequestFullscreen();\n                    }\n                    fullbutton.setAttribute(\"src\", \"../exit_fullscreen.png\");\n                    fullscreen = 1;\n                } else {\n                    if (document.exitFullscreen) {\n                        document.exitFullscreen();\n                    } else if (document.webkitExitFullscreen) {\n                        document.webkitExitFullscreen();\n                    } else if (document.mozCancelFullScreen) {\n                        document.mozCancelFullScreen();\n                    } else if (document.msExitFullscreen) {\n                        document.msExitFullscreen();\n                    }\n                    fullbutton.setAttribute(\"src\", \"../fullscreen.png\");\n                    fullscreen = 0;\n                }\n\n            });";
-        string patternName = GameObject.FindWithTag("ImageTarget").GetComponent<ImageTarget>().patternName;
-        string presetText = $"preset=\"hiro\" emitevents=\"true\" button";
-        if (patternName != "default") presetText = $"type=\"pattern\" preset=\"custom\" src=\"{patternName}\" url=\"{patternName}\" emitevents=\"true\" button";
-        string markerHTML = "<a-marker id=\"marker\" " + presetText + ">";
-        string bottomHTML = @"</a-marker>
-        <a-entity camera></a-entity>
-        </a-scene>
-</body>
-</html>";
-        #endregion
+        bool isNft = GameObject.FindWithTag("ImageTarget").GetComponent<ImageTarget>().isNftImage;
 
         StringBuilder sb = new StringBuilder();
         #region Top HTML
         sb.AppendLine("<!-- BEGIN: Top HTML -->");
-        sb.Append(topHTML);
+        sb.Append(HtmlStrings.getTopHtml(isNft));
         sb.AppendLine("<!-- END: Top HTML -->");
         #endregion Top HTML
 
@@ -206,7 +187,7 @@ public class CompileFile : MonoBehaviour
         }
         //end marker event listeners
 
-        sb.AppendLine(fullscreenButtonActionHTML);
+        sb.AppendLine(HtmlStrings.fullscreenButtonActionHTML);
         sb.AppendLine("},");
         //BEGIN: Tick function for bezier animations
         sb.AppendLine("tick: function (totalTime, deltaTime) {");
@@ -291,10 +272,10 @@ public class CompileFile : MonoBehaviour
 
         //MiddleHTML
         sb.AppendLine("<!-- BEGIN: Middle HTML -->");
-        sb.AppendLine(bodyHtml);
-        if (hasVideo) sb.AppendLine(buttonHTML);
-        sb.AppendLine(fullscreenButtonHTML);
-        sb.AppendLine(middleHTML);
+        sb.AppendLine(HtmlStrings.bodyHtml);
+        if (hasVideo) sb.AppendLine(HtmlStrings.buttonHTML);
+        sb.AppendLine(HtmlStrings.fullscreenButtonHTML);
+        sb.AppendLine(HtmlStrings.middleHTML);
         sb.AppendLine("<!-- END: Middle HTML -->");
         sb.AppendLine("");
 
@@ -344,7 +325,7 @@ public class CompileFile : MonoBehaviour
         #endregion Unity Compiled Assets
 
         sb.AppendLine("<!-- BEGIN: Add Image Target (marker) -->");
-        sb.AppendLine(markerHTML);
+        sb.AppendLine(HtmlStrings.getTopMarkerHtml(isNft));
         sb.AppendLine("<!-- END: Add Image Target (marker) -->");
         sb.AppendLine("");
 
@@ -353,6 +334,7 @@ public class CompileFile : MonoBehaviour
         //Adds in the physical object for each child of the ImageTarget
         for (int i = 0; i < imageTarget.childCount; i++)
         {
+            
             GameObject childToAdd = imageTarget.GetChild(i).gameObject;
             Texture2D objectTexture = (Texture2D)childToAdd.GetComponentInChildren<MeshRenderer>().sharedMaterial.mainTexture;
             string textureName = null;
@@ -366,6 +348,10 @@ public class CompileFile : MonoBehaviour
                 transparency = true;
 
             }
+            Plane newPlane = new Plane();
+            newPlane.initialize(childToAdd, textureName);
+            Debug.Log(newPlane.getObjectPropertiesString());
+
             switch (childToAdd.tag)
             {
                 case "Plane":
@@ -698,7 +684,7 @@ public class CompileFile : MonoBehaviour
 
         sb.AppendLine("");
         sb.AppendLine("<!-- BEGIN: Bottom HTML -->");
-        sb.Append(bottomHTML);
+        sb.Append(HtmlStrings.getBottomMarkerHtml(isNft));
         sb.AppendLine("<!-- END: Bottom HTML -->");
 
         File.WriteAllText(folderPath + fileName, sb.ToString());
