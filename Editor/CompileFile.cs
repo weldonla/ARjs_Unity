@@ -338,18 +338,19 @@ public class CompileFile : MonoBehaviour
             GameObject childToAdd = imageTarget.GetChild(i).gameObject;
             Texture2D objectTexture = (Texture2D)childToAdd.GetComponentInChildren<MeshRenderer>().sharedMaterial.mainTexture;
             string textureName = null;
-            bool transparency = false;
+            string transparency = "false";
             if (objectTexture != null && childToAdd.tag!="Model")
             {
                 textureName = objectTexture.name;
                 byte[] bytes = objectTexture.EncodeToPNG();
                 if (!Directory.Exists(folderPath + "textures/")) Directory.CreateDirectory(folderPath + "textures/");
                 File.WriteAllBytes(folderPath + "textures/" + textureName + ".png", bytes);
-                transparency = true;
+                transparency = "true";
 
             }
             Plane newPlane = new Plane();
-            newPlane.initialize(childToAdd, textureName);
+            newPlane.initialize();
+            newPlane.setPropertyValues(childToAdd, textureName, i);
             Debug.Log(newPlane.getObjectPropertiesString());
 
             switch (childToAdd.tag)

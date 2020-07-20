@@ -37,15 +37,3 @@ public static class HelperFunctions
         tagManager.ApplyModifiedProperties();
     }
 }
-
-/*
-*   Located in HelperFunctions file, used as enum for tags
-*/
-public static class TagNames {
-    public static string plane = "Plane";
-    public static string video = "Video";
-    public static string cube = "Cube";
-    public static string model = "Model";
-    public static string sphere = "Sphere";
-    public static string cylinder = "Cylinder";
-}
