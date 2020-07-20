@@ -1,11 +1,12 @@
 using System.Text;
 using System.Reflection;
 using UnityEngine;
+using System;
 public abstract class ArObject {
     // General Purpose
     public string HtmlTag;
     public GameObject childToAdd;
-    public int i;
+    public string objectId;
     public string scaleX_name;
     public string scaleY_name;
     public string scaleZ_name;
@@ -30,11 +31,11 @@ public abstract class ArObject {
     public float y_scale_offset;
     public float z_scale_offset;
 
-    public void setPropertyValues(GameObject childToAdd, string textureName, int i) {
+    public void setPropertyValues(GameObject childToAdd, string textureName, string id) {
         Transform transform = childToAdd.transform;
 
         this.childToAdd = childToAdd;
-        this.i = i;
+        objectId = id;
 
         _class = "intersectable";
         _position = $"{transform.localPosition.x*x_pos_offset} {transform.localPosition.y*y_pos_offset} {transform.localPosition.z*z_pos_offset}";
@@ -69,7 +70,7 @@ public abstract class ArObject {
 
     public string getHtmlString(KeyFrameList keyList) {
         StringBuilder sb = new StringBuilder();
-        
+
         sb.AppendLine($"<{HtmlTag} {getObjectPropertiesString()}");
         if(childToAdd.GetComponent<AnimationHelper>() != null) sb.AppendLine($"{getKeyFramesString(keyList)}");
         sb.Append($"></{HtmlTag}>");
@@ -80,7 +81,6 @@ public abstract class ArObject {
         StringBuilder sb = new StringBuilder();
         foreach (WeldonKeyFrame frame in keyList.frameList)
         {
-            string animationId = childToAdd.name.ToLower() + "_" + i;
             int index = keyList.frameList.FindIndex(obj => obj == frame);
             string loopTrueString = "";
             string animTrigger = "";
@@ -95,7 +95,7 @@ public abstract class ArObject {
                 scaleYFrom = $"from: {prevFrame.scalY};";
                 scaleZFrom = $"from: {prevFrame.scalZ};";
 
-                animTrigger = $"startEvents: animationcomplete__{animationId}_f{index-1}" + ((index==1 && childToAdd.GetComponent<AnimationHelper>().loop)? $", animationcomplete__{animationId}_f{keyList.frameList.Count-1};" : ";");
+                animTrigger = $"startEvents: animationcomplete__{objectId}_f{index-1}" + ((index==1 && childToAdd.GetComponent<AnimationHelper>().loop)? $", animationcomplete__{objectId}_f{keyList.frameList.Count-1};" : ";");
             }
             else
             {
@@ -111,11 +111,11 @@ public abstract class ArObject {
             //if (childToAdd.GetComponent<AnimationHelper>().loop) loopTrueString = $"repeat = \"indefinite\"";
             bool isFirstFrame = prevFrame.time.Equals(-1) ? true : false;
             if (isFirstFrame) prevFrame.time = 0;
-            if (frame.IsDifferentPosition(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{animationId}_f{index}=\" property: position; {posFrom} {posTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-            if (frame.IsDifferentRotation(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{animationId}_f{index}=\" property: rotation; {rotFrom} {rotTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-            if ((frame.IsDifferentWidth(prevFrame) || isFirstFrame) && scaleX_name != null) sb.AppendLine($"animation__{animationId}_f{index}=\" property: {scaleX_name}; {scaleXFrom} {scaleXTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-            if ((frame.IsDifferentHeight(prevFrame) || isFirstFrame) && scaleY_name != null) sb.AppendLine($"animation__{animationId}_f{index}=\" property: {scaleY_name}; {scaleYFrom} {scaleYTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-            if ((frame.IsDifferentHeight(prevFrame) || isFirstFrame) && scaleZ_name != null) sb.AppendLine($"animation__{animationId}_f{index}=\" property: {scaleZ_name}; {scaleZFrom} {scaleZTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if (frame.IsDifferentPosition(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{objectId}_f{index}=\" property: position; {posFrom} {posTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if (frame.IsDifferentRotation(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{objectId}_f{index}=\" property: rotation; {rotFrom} {rotTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if ((frame.IsDifferentWidth(prevFrame) || isFirstFrame) && scaleX_name != null) sb.AppendLine($"animation__{objectId}_f{index}=\" property: {scaleX_name}; {scaleXFrom} {scaleXTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if ((frame.IsDifferentHeight(prevFrame) || isFirstFrame) && scaleY_name != null) sb.AppendLine($"animation__{objectId}_f{index}=\" property: {scaleY_name}; {scaleYFrom} {scaleYTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
+            if ((frame.IsDifferentHeight(prevFrame) || isFirstFrame) && scaleZ_name != null) sb.AppendLine($"animation__{objectId}_f{index}=\" property: {scaleZ_name}; {scaleZFrom} {scaleZTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
         }
         return sb.ToString();
     }
@@ -128,7 +128,9 @@ public abstract class ArObject {
         foreach (PropertyInfo property in properties)
         {
             if(property.GetValue(this) != null){
-                sb.Append($"{property.Name.Split('_')[1]}={property.GetValue(this)} ");
+                var propertyArray = property.Name.Split('_');
+                propertyArray[0] = "";
+                sb.Append($"{String.Join("-", propertyArray).Remove(0,1)}=\"{property.GetValue(this)}\" ");
                 // Debug.Log($"{property.Name.Split('_')[0]}={property.GetValue(this)} ");
             }
         }

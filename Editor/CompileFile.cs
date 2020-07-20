@@ -359,7 +359,7 @@ public class CompileFile : MonoBehaviour
 
                     Plane newPlane = new Plane();
                     newPlane.initialize();
-                    newPlane.setPropertyValues(childToAdd, textureName, i);
+                    newPlane.setPropertyValues(childToAdd, textureName, planeID);
                     string lineToAppend = newPlane.getHtmlString(planeKeyList);
                     Debug.Log(lineToAppend);
                     sb.AppendLine(lineToAppend);
@@ -367,55 +367,15 @@ public class CompileFile : MonoBehaviour
 
                 case "Video":
                     string videoID = childToAdd.name.ToLower() + "_" + i;
-                    var Video = (width: childToAdd.transform.localScale.x, height: childToAdd.transform.localScale.y,
-                                position: -childToAdd.transform.localPosition.x / 10 + " " + childToAdd.transform.localPosition.y / 10 + " " + childToAdd.transform.localPosition.z / 10,
-                                rotation: childToAdd.transform.localEulerAngles.x + " " + -childToAdd.transform.localEulerAngles.y + " " + -childToAdd.transform.localEulerAngles.z,
-                                color: "#" + ColorUtility.ToHtmlStringRGB(childToAdd.GetComponentInChildren<MeshRenderer>().sharedMaterial.color),
-                                src: "#" + childToAdd.name + "_Asset_" + i);
-                    sb.AppendLine($"<a-video src=\"{Video.src}\" id=\"{childToAdd.name + "_" + i}\" class=\"intersectable\" width=\"{Video.width}\" height=\"{Video.height}\" position=\"{Video.position}\" rotation=\"{Video.rotation}\" color=\"{Video.color}\" transparent={transparency}");
+                    
+                    string videoAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + videoID + ".txt");
+                    KeyFrameList videoKeyList = JsonUtility.FromJson<KeyFrameList>(videoAnimationFile);
 
-                    if (childToAdd.GetComponent<AnimationHelper>() != null)
-                    {
-                        string animationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + videoID + ".txt");
-                        KeyFrameList keyList = JsonUtility.FromJson<KeyFrameList>(animationFile);
-
-                        foreach (WeldonKeyFrame frame in keyList.frameList)
-                        {
-                            int index = keyList.frameList.FindIndex(obj => obj == frame);
-                            string loopTrueString = "";
-                            string animTrigger = "";
-                            string posFrom = "", rotFrom = "", widthFrom = "", heightFrom = "";
-                            WeldonKeyFrame prevFrame = new WeldonKeyFrame();
-                            if (index > 0)
-                            {
-                                prevFrame = keyList.frameList[index - 1];
-                                posFrom = $"from: {-prevFrame.posX / 10} {prevFrame.posY / 10} {prevFrame.posZ / 10};";
-                                rotFrom = $"from: {prevFrame.rotX} {-prevFrame.rotY} {-prevFrame.rotZ};";
-                                widthFrom = $"from: {prevFrame.scalX};";
-                                heightFrom = $"from: {prevFrame.scalY};";
-
-                                animTrigger = $"startEvents: animationcomplete__{videoID}_f{index-1}" + ((index == 1 && childToAdd.GetComponent<AnimationHelper>().loop) ? $", animationcomplete__{videoID}_f{keyList.frameList.Count - 1};" : ";");
-                            }
-                            else
-                            {
-                                if (childToAdd.GetComponent<AnimationHelper>().onClick) animTrigger = $"startEvents: mousedown;";
-                            }
-
-                            string posTo = $"to: {-frame.posX / 10} {frame.posY / 10} {frame.posZ / 10};",
-                                rotTo = $"to: {frame.rotX} {-frame.rotY} {-frame.rotZ};",
-                                widthTo = $"to: {frame.scalX};",
-                                heightTo = $"to: {frame.scalY};";
-
-                            //if (childToAdd.GetComponent<AnimationHelper>().loop) loopTrueString = $"repeat = \"indefinite\"";
-                            bool isFirstFrame = prevFrame.time.Equals(-1) ? true : false;
-                            if (isFirstFrame) prevFrame.time = 0;
-                            if (frame.IsDifferentPosition(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{videoID}_f{index}=\" property: position; {posFrom} {posTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentRotation(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{videoID}_f{index}=\" property: rotation; {rotFrom} {rotTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentWidth(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{videoID}_f{index}=\" property: width; {widthFrom} {widthTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentHeight(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{videoID}_f{index}=\" property: height; {heightFrom} {heightTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                        }
-                    }
-                    sb.AppendLine("></a-video>");
+                    Video newVideo = new Video();
+                    newVideo.initialize();
+                    newVideo.setPropertyValues(childToAdd, textureName, videoID);
+                    newVideo._src = "#" + childToAdd.name + "_Asset_" + i;
+                    sb.AppendLine(newVideo.getHtmlString(videoKeyList));
                     break;
 
                 case "Cube":
@@ -478,53 +438,17 @@ public class CompileFile : MonoBehaviour
                 case "Model":
                     string modelID = childToAdd.name.ToLower() + "_" + i;
 
-                    var Model = (width: childToAdd.transform.localScale.x / 10, height: childToAdd.transform.localScale.y / 10, depth: childToAdd.transform.localScale.z / 10,
-                                position: -childToAdd.transform.localPosition.x / 10 + " " + childToAdd.transform.localPosition.y / 10 + " " + childToAdd.transform.localPosition.z / 10,
-                                rotation: childToAdd.transform.localEulerAngles.x + " " + -childToAdd.transform.localEulerAngles.y + " " + -childToAdd.transform.localEulerAngles.z,
-                                color: "#ffffff",
-                                src: textureName != null ? "textures/" + textureName + ".png" : "");
-                    sb.AppendLine($"<a-entity obj-model=\"obj: #{childToAdd.name + "_Asset_obj_" + i}; mtl: #{childToAdd.name + "_Asset_mtl_" + i}\" id=\"{childToAdd.name + "_" + i}\" class=\"intersectable\" scale=\"{Model.width} {Model.height} {Model.depth}\" position=\"{Model.position}\" rotation=\"{Model.rotation}\" color=\"{Model.color}\" transparent={transparency}");
+                    string modelAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + modelID + ".txt");
+                    KeyFrameList modelKeyList = JsonUtility.FromJson<KeyFrameList>(modelAnimationFile);
 
+                    Model newModel = new Model();
+                    newModel.initialize();
+                    newModel.setPropertyValues(childToAdd, textureName, modelID);
+                    newModel.setObjectModelString(i);
+                    string modelLineToAppend = newModel.getHtmlString(modelKeyList);
+                    Debug.Log(modelLineToAppend);
+                    sb.AppendLine(modelLineToAppend);
 
-                    if (childToAdd.GetComponent<AnimationHelper>() != null)
-                    {
-                        string animationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + modelID + ".txt");
-                        KeyFrameList keyList = JsonUtility.FromJson<KeyFrameList>(animationFile);
-
-                        foreach (WeldonKeyFrame frame in keyList.frameList)
-                        {
-                            int index = keyList.frameList.FindIndex(obj => obj == frame);
-                            string loopTrueString = "";
-                            string animTrigger = "";
-                            string posFrom = "", rotFrom = "", scaleFrom = "";
-                            WeldonKeyFrame prevFrame = new WeldonKeyFrame();
-                            if (index > 0)
-                            {
-                                prevFrame = keyList.frameList[index - 1];
-                                posFrom = $"from: {-prevFrame.posX / 10} {prevFrame.posY / 10} {prevFrame.posZ / 10};";
-                                rotFrom = $"from: {prevFrame.rotX} {-prevFrame.rotY} {-prevFrame.rotZ};";
-                                scaleFrom = $"from: {prevFrame.scalX / 10} {prevFrame.scalY / 10} {prevFrame.scalZ / 10};";
-
-                                animTrigger = $"startEvents: animationcomplete__{modelID}_f{index-1}" + ((index == 1 && childToAdd.GetComponent<AnimationHelper>().loop) ? $", animationcomplete__{modelID}_f{keyList.frameList.Count - 1};" : ";");
-                            }
-                            else
-                            {
-                                if (childToAdd.GetComponent<AnimationHelper>().onClick) animTrigger = $"startEvents: mousedown;";
-                            }
-
-                            string posTo = $"to: {-frame.posX / 10} {frame.posY / 10} {frame.posZ / 10};",
-                                rotTo = $"to: {frame.rotX} {-frame.rotY} {-frame.rotZ};",
-                                scaleTo = $"to: {frame.scalX / 10} {frame.scalY / 10} {frame.scalZ / 10};";
-
-                            //if (childToAdd.GetComponent<AnimationHelper>().loop) loopTrueString = $"repeat = \"indefinite\"";
-                            bool isFirstFrame = prevFrame.time.Equals(-1) ? true : false;
-                            if (isFirstFrame) prevFrame.time = 0;
-                            if (frame.IsDifferentPosition(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{modelID}_f{index}=\" property: position; {posFrom} {posTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentRotation(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{modelID}_f{index}=\" property: rotation; {rotFrom} {rotTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                            if (frame.IsDifferentWidth(prevFrame) || isFirstFrame) sb.AppendLine($"animation__{modelID}_f{index}=\" property: scale; {scaleFrom} {scaleTo} dur: {(frame.time - prevFrame.time) * 1000}; easing: linear; {animTrigger}\"");
-                        }
-                    }
-                    sb.AppendLine("></a-entity>");
                     break;
 
                 case "Sphere":
