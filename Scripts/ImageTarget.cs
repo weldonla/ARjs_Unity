@@ -11,7 +11,9 @@ public class ImageTarget : MonoBehaviour
     public string patternName = "default";
     [HideInInspector]
     public string destination = "Assets/AR.js-master/aframe/";
-    public bool isNftImage;
+    //@todo remove when you can implement nft images
+    [HideInInspector]
+    public bool isNftImage = false;
     public bool smooth = true;
     public int smoothCount = 10;
     public float smoothTolerance = 0.01f;
