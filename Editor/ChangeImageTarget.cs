@@ -11,11 +11,25 @@ public class ChangeImageTarget : ScriptableWizard
     //public string patternLocation = "changeBackToDefaultHiro";
     public Texture2D spriteImage;
 
+    [MenuItem("AR.js/Image Target/2. Apply Generated Image", true)]
+    static bool CompileFileHTMLingvalidation()
+    {
+        if (GameObject.FindWithTag("ImageTarget") != null)
+        {
+            return true;
+        }
+        else return false;
+    }
+
     [MenuItem("AR.js/Image Target/2. Apply Generated Image", false, 2)]
     static void CreateWizard()
     {
-        //ScriptableWizard.DisplayWizard<ChangeImageTarget>("Change Target Image", "Update", "Select .patt File");
-        ScriptableWizard.DisplayWizard<ChangeImageTarget>("Change Target Image", "Update");
+        if(GameObject.FindGameObjectWithTag("ImageTarget").GetComponent<ImageTarget>().isNftImage) {
+            ScriptableWizard.DisplayWizard<ChangeNftImageTarget>("Change Target Image", "Update");
+        }
+        else {
+            ScriptableWizard.DisplayWizard<ChangeImageTarget>("Change Target Image", "Update");
+        }
     }
 
     void OnWizardCreate()
@@ -92,4 +106,52 @@ public class ChangeImageTarget : ScriptableWizard
         return returnTexture;
     }
 
+}
+
+public class ChangeNftImageTarget : ScriptableWizard
+{
+    [Header("Image Target Settings")]
+    public Texture2D spriteImage;
+
+
+    static void CreateWizard()
+    {
+        //ScriptableWizard.DisplayWizard<ChangeImageTarget>("Change Target Image", "Update", "Select .patt File");
+        ScriptableWizard.DisplayWizard<ChangeNftImageTarget>("Change Target Image", "Update");
+    }
+
+    void OnWizardCreate()
+    {
+        GameObject imageTarget = GameObject.FindGameObjectWithTag("ImageTarget");
+        
+        if(spriteImage == null)
+        {
+            Debug.LogError("You have to add a Sprite.");
+            return;
+        }
+        Debug.Log(spriteImage.width +  "x" + spriteImage.height);
+        float aspectRatio = ((float)spriteImage.width/spriteImage.height);
+        Debug.Log(aspectRatio);
+        GameObject.FindGameObjectWithTag("ImageTarget").GetComponent<Transform>().localScale 
+            = new Vector3(GameObject.FindGameObjectWithTag("ImageTarget").GetComponent<Transform>().localScale.x*aspectRatio, 
+                GameObject.FindGameObjectWithTag("ImageTarget").GetComponent<Transform>().localScale.y,
+                GameObject.FindGameObjectWithTag("ImageTarget").GetComponent<Transform>().localScale.z);
+
+        imageTarget.GetComponent<ImageTarget>().patternName = AssetDatabase.GetAssetPath(spriteImage).Split('/')[AssetDatabase.GetAssetPath(spriteImage).Split('/').Length-1].Split('.')[0];
+        imageTarget.GetComponent<MeshRenderer>().material.mainTexture = spriteImage;
+        AssetDatabase.Refresh();
+    }
+
+    void OnWizardOtherButton()
+    {
+        //patternLocation = EditorUtility.OpenFilePanel("Choose .patt file as pattern", "", "patt");
+        //string destination = "Assets/AR.js-master/aframe/UnityExamples/" + patternLocation.Split('/')[patternLocation.Split('/').Length-1];
+        //File.Copy(patternLocation, destination, true);
+    }
+
+    void OnWizardUpdate()
+    {
+
+        //Updates the buttons when you change the size of the array.
+    }
 }
