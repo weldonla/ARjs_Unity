@@ -65,6 +65,47 @@ public static class HtmlStrings
                 fullscreen = 0;
             }
         });";
+
+    public static string bezierCurveFunctions = @"
+        function bezierEvaluate(p0, p1, p2, p3, t) {
+            var u = (1 - t);                
+            var uu = u * u;                
+            var uuu = u * u * u;               
+            var tt = t * t;               
+            var ttt = t * t * t;               
+            //B(t) = (1-t)^3*P0 3*(1-t)^2*t*P1 3*(1-t)*t^2*P2 t^3*P3 , 0 < t < 1               
+            return (uuu * p0 3 * uu * t * p1 3 * u * tt * p2 ttt * p3);          
+        }          
+        function bezierPath(p0, p1, p2, p3, t) {               
+            return new THREE.Vector3(                   
+                bezierEvaluate(p0.x, p1.x, p2.x, p3.x, t),                   
+                bezierEvaluate(p0.y, p1.y, p2.y, p3.y, t),                   
+                bezierEvaluate(p0.z, p1.z, p2.z, p3.z, t)               
+            );           
+        }     
+    }";
+
+    public static string getBezierPathWithId(string id) {
+        return $@"
+            function {id}_Update() {{
+                var newPosition = bezierPath({id}_PointsArray[{id}_CurrentPoint], {id}_PointsArray[{id}_CurrentPoint + 1], { id}_PointsArray[{ id}_CurrentPoint + 2], { id}_PointsArray[{ id}_CurrentPoint + 3], {id}_Time *{ id}_Speed);
+                if ({id}_Time*{id}_Speed>1) {{
+                    {id}_CurrentPoint += 3;
+                    {id}_SubtractTime = totalTime;
+                    if ({id}_CurrentPoint >= {id}_PointsArray.length - 3) {{
+                        {id}_CurrentPoint = 0;
+                    }}
+                }}
+
+
+                {id}.setAttribute('position', {{
+                    x: newPosition.x,
+                    y: newPosition.y,
+                    z: newPosition.z,
+                }});
+            }}
+        ";
+    }
     public static string getTopMarkerHtml(bool isNft) {
         string markerHTML = "";
         if(!isNft) {

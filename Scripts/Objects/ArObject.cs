@@ -31,7 +31,7 @@ public abstract class ArObject {
     public float y_scale_offset;
     public float z_scale_offset;
 
-    public void setPropertyValues(GameObject childToAdd, string textureName, string id) {
+    public virtual void setPropertyValues(GameObject childToAdd, string textureName, string id) {
         Transform transform = childToAdd.transform;
 
         this.childToAdd = childToAdd;
@@ -77,7 +77,7 @@ public abstract class ArObject {
         return sb.ToString();
     }
 
-    public string getKeyFramesString(KeyFrameList keyList) {
+    public virtual string getKeyFramesString(KeyFrameList keyList) {
         StringBuilder sb = new StringBuilder();
         foreach (WeldonKeyFrame frame in keyList.frameList)
         {
@@ -89,11 +89,11 @@ public abstract class ArObject {
             if (index > 0)
             {
                 prevFrame = keyList.frameList[index - 1];
-                posFrom = $"from: {-prevFrame.posX / 10} {prevFrame.posY / 10} {prevFrame.posZ / 10};";
-                rotFrom = $"from: {prevFrame.rotX} {-prevFrame.rotY} {-prevFrame.rotZ};";
-                scaleXFrom = $"from: {prevFrame.scalX};";
-                scaleYFrom = $"from: {prevFrame.scalY};";
-                scaleZFrom = $"from: {prevFrame.scalZ};";
+                posFrom = $"from: {-prevFrame.posX*x_pos_offset} {prevFrame.posY*y_pos_offset} {prevFrame.posZ*z_pos_offset};";
+                rotFrom = $"from: {prevFrame.rotX*x_rot_offset} {prevFrame.rotY*y_rot_offset} {prevFrame.rotZ*z_rot_offset};";
+                scaleXFrom = $"from: {prevFrame.scalX*x_scale_offset};";
+                scaleYFrom = $"from: {prevFrame.scalY*y_scale_offset};";
+                scaleZFrom = $"from: {prevFrame.scalZ*z_scale_offset};";
 
                 animTrigger = $"startEvents: animationcomplete__{objectId}_f{index-1}" + ((index==1 && childToAdd.GetComponent<AnimationHelper>().loop)? $", animationcomplete__{objectId}_f{keyList.frameList.Count-1};" : ";");
             }
@@ -104,9 +104,9 @@ public abstract class ArObject {
 
             string posTo = $"to: {frame.posX*x_pos_offset} {frame.posY*y_pos_offset} {frame.posZ*z_pos_offset};",
                 rotTo = $"to: {frame.rotX*x_rot_offset} {frame.rotY*y_rot_offset} {frame.rotZ*z_rot_offset};",
-                scaleXTo = $"to: {frame.scalX};",
-                scaleYTo = $"to: {frame.scalY};",
-                scaleZTo = $"to: {frame.scalZ};";
+                scaleXTo = $"to: {frame.scalX*x_scale_offset};",
+                scaleYTo = $"to: {frame.scalY*y_scale_offset};",
+                scaleZTo = $"to: {frame.scalZ*z_scale_offset};";
 
             //if (childToAdd.GetComponent<AnimationHelper>().loop) loopTrueString = $"repeat = \"indefinite\"";
             bool isFirstFrame = prevFrame.time.Equals(-1) ? true : false;
