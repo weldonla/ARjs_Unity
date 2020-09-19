@@ -72,7 +72,7 @@ public abstract class ArObject {
         StringBuilder sb = new StringBuilder();
 
         sb.AppendLine($"<{HtmlTag} {getObjectPropertiesString()}");
-        if(childToAdd.GetComponent<AnimationHelper>() != null) sb.AppendLine($"{getKeyFramesString(keyList)}");
+        if(keyList != null) sb.AppendLine($"{getKeyFramesString(keyList)}");
         sb.Append($"></{HtmlTag}>");
         return sb.ToString();
     }
