@@ -98,7 +98,6 @@ public class CompileFile : MonoBehaviour
             GameObject childToAdd = imageTarget.GetChild(i).gameObject;
             if (childToAdd.tag == "Video")
             {
-
                 hasVideo = true;
             }
         }
@@ -156,8 +155,8 @@ public class CompileFile : MonoBehaviour
 
             if (childToAdd.GetComponent<ButtonHelper>() != null)
             {
-                sb.AppendLine(@"open(""" + childToAdd.GetComponent<ButtonHelper>().URL + @""");");
                 sb.AppendLine(id + @".addEventListener(""mousedown"", function(evt){");
+                sb.AppendLine(@"open(""" + childToAdd.GetComponent<ButtonHelper>().URL + @""");");
                 sb.AppendLine("});");
             }
             if (childToAdd.tag == "Video")

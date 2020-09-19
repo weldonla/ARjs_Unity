@@ -5,8 +5,14 @@ using UnityEngine;
 public static class HtmlStrings
 {
     // Imports
-    public static string aframeMarkerImport = "<script src=\"https://aframe.io/releases/1.0.4/aframe.min.js\"></script>";
-    public static string arjsMarkerImport = "<script src=\"https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js\"></script>";
+    // newer versions that i can't use yet 
+    // <script src=\"https://aframe.io/releases/1.0.4/aframe.min.js\"></script>
+    // <script src=\"https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js\"></script>
+    // older versions i'm switching back to to fixe some bugs
+    // <script src="https://aframe.io/releases/0.8.2/aframe.min.js"></script>
+    // <script src="../build/aframe-ar.js"></script>
+    public static string aframeMarkerImport = "<script src=\"https://aframe.io/releases/0.8.2/aframe.min.js\"></script>";
+    public static string arjsMarkerImport = "<script src=\"../build/aframe-ar.js\"></script>";
     public static string aframeNftImport = "<script src=\"https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js\"></script>";
     public static string arjsNftImport = "<script src=\"https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js\"></script>";
     public static string plySupportImport = "<script src=\"https://rawgit.com/donmccurdy/aframe-extras/v6.0.0/dist/aframe-extras.loaders.min.js\"></script>";
@@ -74,7 +80,7 @@ public static class HtmlStrings
             var tt = t * t;               
             var ttt = t * t * t;               
             //B(t) = (1-t)^3*P0 3*(1-t)^2*t*P1 3*(1-t)*t^2*P2 t^3*P3 , 0 < t < 1               
-            return (uuu * p0 3 * uu * t * p1 3 * u * tt * p2 ttt * p3);          
+            return (uuu * p0 + 3 * uu * t * p1 + 3 * u * tt * p2 + ttt * p3);          
         }          
         function bezierPath(p0, p1, p2, p3, t) {               
             return new THREE.Vector3(                   
