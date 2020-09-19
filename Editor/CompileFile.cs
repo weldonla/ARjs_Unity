@@ -310,9 +310,13 @@ public class CompileFile : MonoBehaviour
             {
                 case "Plane":
                     string planeID = childToAdd.name.ToLower() + "_" + i;
-                    string planeAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + planeID + ".txt");
-                    KeyFrameList planeKeyList = JsonUtility.FromJson<KeyFrameList>(planeAnimationFile);
-
+                    string planeAnimationFilePath = Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + planeID + ".txt";
+                    KeyFrameList planeKeyList = null;
+                    if(Directory.Exists(planeAnimationFilePath)) {
+                        string planeAnimationFile = File.ReadAllText(planeAnimationFilePath);
+                        planeKeyList = JsonUtility.FromJson<KeyFrameList>(planeAnimationFile);
+                    }
+                    
                     Plane newPlane = new Plane();
                     newPlane.initialize();
                     newPlane.setPropertyValues(childToAdd, textureName, planeID);
@@ -321,8 +325,12 @@ public class CompileFile : MonoBehaviour
 
                 case "Video":
                     string videoID = childToAdd.name.ToLower() + "_" + i;
-                    string videoAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + videoID + ".txt");
-                    KeyFrameList videoKeyList = JsonUtility.FromJson<KeyFrameList>(videoAnimationFile);
+                    string videoAnimationFilePath = Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + videoID + ".txt";
+                    KeyFrameList videoKeyList = null;
+                    if(Directory.Exists(videoAnimationFilePath)) {
+                        string videoAnimationFile = File.ReadAllText(videoAnimationFilePath);
+                        videoKeyList = JsonUtility.FromJson<KeyFrameList>(videoAnimationFile);
+                    }
 
                     Video newVideo = new Video();
                     newVideo.initialize();
@@ -333,9 +341,13 @@ public class CompileFile : MonoBehaviour
 
                 case "Cube":
                     string cubeID = childToAdd.name.ToLower() + "_" + i;
-                    string cubeAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + cubeID + ".txt");
-                    KeyFrameList cubeKeyList = JsonUtility.FromJson<KeyFrameList>(cubeAnimationFile);
-
+                    string cubeAnimationFilePath = Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + cubeID + ".txt";
+                    KeyFrameList cubeKeyList = null;
+                    if(Directory.Exists(cubeAnimationFilePath)) {
+                        string cubeAnimationFile = File.ReadAllText(cubeAnimationFilePath);
+                        cubeKeyList = JsonUtility.FromJson<KeyFrameList>(cubeAnimationFile);
+                    }
+                    
                     Cube newCube = new Cube();
                     newCube.initialize();
                     newCube.setPropertyValues(childToAdd, textureName, cubeID);
@@ -344,10 +356,13 @@ public class CompileFile : MonoBehaviour
 
                 case "Model":
                     string modelID = childToAdd.name.ToLower() + "_" + i;
-
-                    string modelAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + modelID + ".txt");
-                    KeyFrameList modelKeyList = JsonUtility.FromJson<KeyFrameList>(modelAnimationFile);
-
+                    string modelAnimationFilePath = Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + modelID + ".txt";
+                    KeyFrameList modelKeyList = null;
+                    if(Directory.Exists(modelAnimationFilePath)) {
+                        string modelAnimationFile = File.ReadAllText(modelAnimationFilePath);
+                        modelKeyList = JsonUtility.FromJson<KeyFrameList>(modelAnimationFile);
+                    }
+                    
                     Model newModel = new Model();
                     newModel.initialize();
                     newModel.setPropertyValues(childToAdd, textureName, modelID);
@@ -360,9 +375,13 @@ public class CompileFile : MonoBehaviour
 
                 case "Sphere":
                     string shpereID = childToAdd.name.ToLower() + "_" + i;
-                    string sphereAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + shpereID + ".txt");
-                    KeyFrameList sphereKeyList = JsonUtility.FromJson<KeyFrameList>(sphereAnimationFile);
-
+                    string sphereAnimationFilePath = Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + shpereID + ".txt";
+                    KeyFrameList sphereKeyList = null;
+                    if(Directory.Exists(sphereAnimationFilePath)) {
+                        string sphereAnimationFile = File.ReadAllText(sphereAnimationFilePath);
+                        sphereKeyList = JsonUtility.FromJson<KeyFrameList>(sphereAnimationFile);
+                    }
+                    
                     Sphere newSphere = new Sphere();
                     newSphere.initialize();
                     newSphere.setPropertyValues(childToAdd, textureName, shpereID);
@@ -371,9 +390,13 @@ public class CompileFile : MonoBehaviour
 
                 case "Cylinder":
                     string cylinderID = childToAdd.name.ToLower() + "_" + i;
-                    string cylinderAnimationFile = File.ReadAllText(Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + cylinderID + ".txt");
-                    KeyFrameList cylinderKeyList = JsonUtility.FromJson<KeyFrameList>(cylinderAnimationFile);
-
+                    string cylinderAnimationFilePath = Application.dataPath + "/Animations/JsonExports/" + SceneManager.GetActiveScene().name + "/" + cylinderID + ".txt";
+                    KeyFrameList cylinderKeyList = null;
+                    if(Directory.Exists(cylinderAnimationFilePath)) {
+                        string cylinderAnimationFile = File.ReadAllText(cylinderAnimationFilePath);
+                        cylinderKeyList = JsonUtility.FromJson<KeyFrameList>(cylinderAnimationFile);
+                    }
+                    
                     Cylinder newCylinder = new Cylinder();
                     newCylinder.initialize();
                     newCylinder.setPropertyValues(childToAdd, textureName, cylinderID);
