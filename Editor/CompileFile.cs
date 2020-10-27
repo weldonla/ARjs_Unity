@@ -4,6 +4,8 @@ using System.IO;
 using System.Text;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
+using System.Globalization;
+using System.Threading;
 
 public class CompileFile : MonoBehaviour
 {
@@ -22,6 +24,10 @@ public class CompileFile : MonoBehaviour
     [MenuItem("AR.js/Compile Files", false, 17)]
     static void CompileFileHTML()
     {
+        var ci = new CultureInfo("en-US");
+        Thread.CurrentThread.CurrentCulture = ci;
+        Thread.CurrentThread.CurrentUICulture = ci;
+
         string folderPath = GameObject.FindWithTag("ImageTarget").GetComponent<ImageTarget>().destination;
         if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
         if (!File.Exists("Assets/AR.js-master/aframe/fullscreen.png"))
